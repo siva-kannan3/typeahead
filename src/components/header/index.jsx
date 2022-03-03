@@ -7,7 +7,7 @@ import "./header.css";
 export const Header = () => {
   return (
     <div className="header-container">
-      <TypeAhead />
+      <TypeAhead showCloseButton={true} />
     </div>
   );
 };

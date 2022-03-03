@@ -1,20 +1,37 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faClose } from "@fortawesome/free-solid-svg-icons";
 
 import "./typeahead.css";
 
-export const TypeAhead = () => {
+export const TypeAhead = ({ showCloseButton }) => {
   const [search, setSearch] = useState("");
+  const [showOverlay, setShowOverlay] = useState(false);
+
+  const searchInputRef = useRef(null);
+  const overlayRef = useRef(null);
+
+  useEffect(() => {}, []);
+
+  const updateShowOverlay = (event) => {};
 
   const onChangeSearch = (event) => {
-    setSearch(event.target.value);
+    let searchValue = event.target.value;
+    setSearch(searchValue);
   };
 
   return (
     <div className="typeahead">
-      <div className="search-container">
+      <div
+        className="search-container"
+        id="search-container"
+        ref={searchInputRef}
+        tabIndex="-1"
+        onFocus={() => {
+          setShowOverlay(true);
+        }}
+      >
         <input
           value={search}
           onChange={onChangeSearch}
@@ -22,10 +39,29 @@ export const TypeAhead = () => {
           aria-label="search-input"
           className="search-input"
         />
-        <div className="icon-wrapper">
+        {search && showCloseButton && (
+          <div className="icon-wrapper close">
+            <FontAwesomeIcon icon={faClose} className="close-icon" />
+          </div>
+        )}
+        <div className="icon-wrapper search">
           <FontAwesomeIcon icon={faSearch} className="search-icon" />
         </div>
       </div>
+
+      {showOverlay && (
+        <div
+          className="dark-overlay"
+          ref={overlayRef}
+          onClick={updateShowOverlay}
+        >
+          {search && (
+            <div className="search-list-container" id="search-list">
+              I am search list
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
