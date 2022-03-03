@@ -14,7 +14,12 @@ export const TypeAhead = ({ showCloseButton }) => {
 
   useEffect(() => {}, []);
 
-  const updateShowOverlay = (event) => {};
+  const updateShowOverlay = (event) => {
+    const searchListElement = document.getElementById("search-list");
+    if (event.target !== searchListElement) {
+      setShowOverlay(false);
+    }
+  };
 
   const onChangeSearch = (event) => {
     let searchValue = event.target.value;
