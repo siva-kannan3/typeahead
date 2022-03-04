@@ -92,14 +92,14 @@
   top: 55px;
   transition: 1.2s all linear;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .search-list-movie {
   display: grid;
   grid-template-columns: min-content 1fr max-content;
 }
-.movie-image-wrapper {
-}
+
 .movie-image-wrapper img {
   width: 80px;
   height: 80px;
