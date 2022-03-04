@@ -53,6 +53,11 @@ export const TypeAhead = ({ showCloseButton }) => {
     setSearch(searchValue);
   };
 
+  const onClose = () => {
+    setShowOverlay(false);
+    setIsInputKeyDown(false);
+  };
+
   return (
     <div className="typeahead">
       <div
@@ -87,7 +92,11 @@ export const TypeAhead = ({ showCloseButton }) => {
         </div>
       </div>
       {search && showOverlay && (
-        <SearchList searchText={search} inputKeyDown={isInputKeyDown} />
+        <SearchList
+          searchText={search}
+          inputKeyDown={isInputKeyDown}
+          onClose={onClose}
+        />
       )}
       {showOverlay && (
         <div
@@ -100,7 +109,7 @@ export const TypeAhead = ({ showCloseButton }) => {
   );
 };
 
-const SearchList = ({ searchText, inputKeyDown }) => {
+const SearchList = ({ searchText, inputKeyDown, onClose }) => {
   const { results } = MOCK_DATA;
 
   const { setSelectedMovie } = useContext(SelectedMovieContext);
@@ -138,6 +147,7 @@ const SearchList = ({ searchText, inputKeyDown }) => {
     if (results.length && enterPress) {
       let selectedMovie = results[cursor];
       setSelectedMovie(selectedMovie);
+      onClose();
     }
   }, [cursor, enterPress]);
 
@@ -151,6 +161,10 @@ const SearchList = ({ searchText, inputKeyDown }) => {
               inputKeyDown && cursor === index && "selected"
             }`}
             role={"button"}
+            onClick={() => {
+              setSelectedMovie(movie);
+              onClose();
+            }}
           >
             <div className="movie-image-wrapper">
               <img

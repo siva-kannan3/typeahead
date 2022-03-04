@@ -104,6 +104,10 @@
   padding: 5px;
 }
 
+.search-list-movie:hover {
+  background-color: lightcyan;
+}
+
 .search-list-movie.selected {
   background-color: lightgreen;
 }
