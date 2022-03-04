@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faClose, faStar } from "@fortawesome/free-solid-svg-icons";
 
+import { SelectedMovieContext } from "../../page/home";
 import MOCK_DATA from "./mock.data.json";
 
 import "./typeahead.css";
@@ -12,11 +13,14 @@ const KEY_CODES = {
   UP: "ArrowUp",
   RIGHT: "ArrowRight",
   BOTTOM: "ArrowDown",
+  ENTER: "Enter",
+  ESCAPE: "Escape",
 };
 
 export const TypeAhead = ({ showCloseButton }) => {
   const [search, setSearch] = useState("");
   const [showOverlay, setShowOverlay] = useState(false);
+  const [isInputKeyDown, setIsInputKeyDown] = useState(false);
 
   const searchInputRef = useRef(null);
   const overlayRef = useRef(null);
@@ -24,8 +28,13 @@ export const TypeAhead = ({ showCloseButton }) => {
   useEffect(() => {
     searchInputRef.current.addEventListener("keydown", (event) => {
       if (event.key === KEY_CODES.BOTTOM) {
-        console.log("bottom key pressed");
+        setIsInputKeyDown(true);
+        event.target.blur();
+      } else if (event.key === KEY_CODES.ESCAPE) {
+        setSearch("");
+        setIsInputKeyDown(false);
       }
+      event.stopPropagation();
     });
   }, []);
 
@@ -77,7 +86,9 @@ export const TypeAhead = ({ showCloseButton }) => {
           <FontAwesomeIcon icon={faSearch} className="search-icon" />
         </div>
       </div>
-      {search && showOverlay && <SearchList searchText={search} />}
+      {search && showOverlay && (
+        <SearchList searchText={search} inputKeyDown={isInputKeyDown} />
+      )}
       {showOverlay && (
         <div
           className="dark-overlay"
@@ -89,13 +100,58 @@ export const TypeAhead = ({ showCloseButton }) => {
   );
 };
 
-const SearchList = ({ searchText }) => {
+const SearchList = ({ searchText, inputKeyDown }) => {
   const { results } = MOCK_DATA;
+
+  const { setSelectedMovie } = useContext(SelectedMovieContext);
+  const downPress = useKeyPress(KEY_CODES.BOTTOM);
+  const upPress = useKeyPress(KEY_CODES.UP);
+  const enterPress = useKeyPress(KEY_CODES.ENTER);
+
+  const [cursor, setCursor] = useState(0);
+
+  useEffect(() => {
+    if (results.length && downPress) {
+      setCursor((prevState) =>
+        prevState < results.length - 1 ? prevState + 1 : prevState
+      );
+      setTimeout(() => {
+        let activeElement = document.querySelector(
+          ".search-list-movie.selected"
+        );
+        activeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  }, [downPress]);
+  useEffect(() => {
+    if (results.length && upPress) {
+      setCursor((prevState) => (prevState > 0 ? prevState - 1 : prevState));
+      setTimeout(() => {
+        let activeElement = document.querySelector(
+          ".search-list-movie.selected"
+        );
+        activeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  }, [upPress]);
+  useEffect(() => {
+    if (results.length && enterPress) {
+      let selectedMovie = results[cursor];
+      setSelectedMovie(selectedMovie);
+    }
+  }, [cursor, enterPress]);
+
   return (
     <div className="search-list-container" id="search-list">
-      {results.map((movie) => {
+      {results.map((movie, index) => {
         return (
-          <div key={movie.id} className="search-list-movie" role={"button"}>
+          <div
+            key={movie.id}
+            className={`search-list-movie ${
+              inputKeyDown && cursor === index && "selected"
+            }`}
+            role={"button"}
+          >
             <div className="movie-image-wrapper">
               <img
                 src={`https://image.tmdb.org/t/p/w185/${movie.poster_path}`}
@@ -117,6 +173,34 @@ const SearchList = ({ searchText }) => {
       })}
     </div>
   );
+};
+
+const useKeyPress = function (targetKey) {
+  const [keyPressed, setKeyPressed] = useState(false);
+
+  function downHandler({ key }) {
+    if (key === targetKey) {
+      setKeyPressed(true);
+    }
+  }
+
+  const upHandler = ({ key }) => {
+    if (key === targetKey) {
+      setKeyPressed(false);
+    }
+  };
+
+  React.useEffect(() => {
+    window.addEventListener("keydown", downHandler);
+    window.addEventListener("keyup", upHandler);
+
+    return () => {
+      window.removeEventListener("keydown", downHandler);
+      window.removeEventListener("keyup", upHandler);
+    };
+  });
+
+  return keyPressed;
 };
 
 SearchList.propTypes = {

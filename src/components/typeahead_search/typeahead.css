@@ -104,8 +104,8 @@
   padding: 5px;
 }
 
-.search-list-movie:hover {
-  background: lightcyan;
+.search-list-movie.selected {
+  background-color: lightgreen;
 }
 
 .movie-image-wrapper img {
