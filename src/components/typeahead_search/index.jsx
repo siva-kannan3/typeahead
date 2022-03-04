@@ -7,6 +7,13 @@ import MOCK_DATA from "./mock.data.json";
 
 import "./typeahead.css";
 
+const KEY_CODES = {
+  LEFT: "ArrowLeft",
+  UP: "ArrowUp",
+  RIGHT: "ArrowRight",
+  BOTTOM: "ArrowDown",
+};
+
 export const TypeAhead = ({ showCloseButton }) => {
   const [search, setSearch] = useState("");
   const [showOverlay, setShowOverlay] = useState(false);
@@ -14,13 +21,19 @@ export const TypeAhead = ({ showCloseButton }) => {
   const searchInputRef = useRef(null);
   const overlayRef = useRef(null);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    searchInputRef.current.addEventListener("keydown", (event) => {
+      if (event.key === KEY_CODES.BOTTOM) {
+        console.log("bottom key pressed");
+      }
+    });
+  }, []);
 
   const updateShowOverlay = (event) => {
     const searchListElement = document.getElementById("search-list");
     if (
       event.target !== searchListElement &&
-      !searchListElement.contains(event.target)
+      !searchListElement?.contains(event.target)
     ) {
       setShowOverlay(false);
     }
@@ -64,15 +77,13 @@ export const TypeAhead = ({ showCloseButton }) => {
           <FontAwesomeIcon icon={faSearch} className="search-icon" />
         </div>
       </div>
-
+      {search && showOverlay && <SearchList searchText={search} />}
       {showOverlay && (
         <div
           className="dark-overlay"
           ref={overlayRef}
           onClick={updateShowOverlay}
-        >
-          {search && <SearchList searchText={search} />}
-        </div>
+        />
       )}
     </div>
   );
@@ -84,7 +95,7 @@ const SearchList = ({ searchText }) => {
     <div className="search-list-container" id="search-list">
       {results.map((movie) => {
         return (
-          <div key={movie.id} className="search-list-movie">
+          <div key={movie.id} className="search-list-movie" role={"button"}>
             <div className="movie-image-wrapper">
               <img
                 src={`https://image.tmdb.org/t/p/w185/${movie.poster_path}`}
