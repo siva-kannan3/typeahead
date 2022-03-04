@@ -18,7 +18,10 @@ export const TypeAhead = ({ showCloseButton }) => {
 
   const updateShowOverlay = (event) => {
     const searchListElement = document.getElementById("search-list");
-    if (event.target !== searchListElement) {
+    if (
+      event.target !== searchListElement &&
+      !searchListElement.contains(event.target)
+    ) {
       setShowOverlay(false);
     }
   };

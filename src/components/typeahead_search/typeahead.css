@@ -93,17 +93,24 @@
   transition: 1.2s all linear;
   overflow-y: auto;
   overscroll-behavior: contain;
+  border-radius: 5px;
 }
 
 .search-list-movie {
   display: grid;
   grid-template-columns: min-content 1fr max-content;
+  padding: 5px;
+}
+
+.search-list-movie:hover {
+  background: lightcyan;
 }
 
 .movie-image-wrapper img {
   width: 80px;
   height: 80px;
-  object-fit: cover;
+  object-fit: fill;
+  display: block;
 }
 .movie-context {
   display: flex;
