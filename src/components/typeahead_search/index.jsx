@@ -119,7 +119,7 @@ const SearchList = ({ searchText, inputKeyDown }) => {
         let activeElement = document.querySelector(
           ".search-list-movie.selected"
         );
-        activeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        activeElement?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 100);
     }
   }, [downPress]);
@@ -130,7 +130,7 @@ const SearchList = ({ searchText, inputKeyDown }) => {
         let activeElement = document.querySelector(
           ".search-list-movie.selected"
         );
-        activeElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        activeElement?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 100);
     }
   }, [upPress]);
