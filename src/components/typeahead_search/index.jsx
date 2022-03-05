@@ -1,38 +1,13 @@
-import React, {
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  useCallback,
-} from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch, faClose, faStar } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faClose } from "@fortawesome/free-solid-svg-icons";
 
-import { SelectedMovieContext } from "../../page/home";
+import { SearchList } from "./search.list";
+import { debounce } from "./utils";
+import { KEY_CODES } from "./constants";
 
 import "./typeahead.css";
-
-const KEY_CODES = {
-  LEFT: "ArrowLeft",
-  UP: "ArrowUp",
-  RIGHT: "ArrowRight",
-  BOTTOM: "ArrowDown",
-  ENTER: "Enter",
-  ESCAPE: "Escape",
-};
-
-const debounce = function (fn, d) {
-  let timer;
-  return function () {
-    let context = this,
-      args = arguments;
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-      fn.apply(context, args);
-    }, d);
-  };
-};
 
 export const TypeAhead = ({ showCloseButton }) => {
   const [search, setSearch] = useState("");
@@ -106,6 +81,7 @@ export const TypeAhead = ({ showCloseButton }) => {
           aria-label="search-input"
           className="search-input"
           ref={searchInputRef}
+          autoComplete={"off"}
         />
         {search && showCloseButton && (
           <div
@@ -138,116 +114,6 @@ export const TypeAhead = ({ showCloseButton }) => {
       )}
     </div>
   );
-};
-
-const SearchList = React.memo(({ inputKeyDown, onClose, movieResults }) => {
-  const { setSelectedMovie } = useContext(SelectedMovieContext);
-  const downPress = useKeyPress(KEY_CODES.BOTTOM);
-  const upPress = useKeyPress(KEY_CODES.UP);
-  const enterPress = useKeyPress(KEY_CODES.ENTER);
-
-  const [cursor, setCursor] = useState(0);
-
-  useEffect(() => {
-    if (movieResults.length && downPress) {
-      setCursor((prevState) =>
-        prevState < movieResults.length - 1 ? prevState + 1 : prevState
-      );
-      setTimeout(() => {
-        let activeElement = document.querySelector(
-          ".search-list-movie.selected"
-        );
-        activeElement?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
-    }
-  }, [downPress]);
-  useEffect(() => {
-    if (movieResults.length && upPress) {
-      setCursor((prevState) => (prevState > 0 ? prevState - 1 : prevState));
-      setTimeout(() => {
-        let activeElement = document.querySelector(
-          ".search-list-movie.selected"
-        );
-        activeElement?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
-    }
-  }, [upPress]);
-  useEffect(() => {
-    if (movieResults.length && enterPress) {
-      let selectedMovie = movieResults[cursor];
-      setSelectedMovie(selectedMovie);
-      onClose();
-    }
-  }, [cursor, enterPress]);
-
-  return (
-    <div className="search-list-container" id="search-list">
-      {movieResults.map((movie, index) => {
-        return (
-          <div
-            key={movie.id}
-            className={`search-list-movie ${
-              inputKeyDown && cursor === index && "selected"
-            }`}
-            role={"button"}
-            onClick={() => {
-              setSelectedMovie(movie);
-              onClose();
-            }}
-          >
-            <div className="movie-image-wrapper">
-              <img
-                src={`https://image.tmdb.org/t/p/w185/${movie.poster_path}`}
-                alt={movie.original_title}
-              />
-            </div>
-            <div className="movie-context">
-              <span className="movie-title">{movie.original_title}</span>
-              <span className="movie-overview">{movie.overview}</span>
-            </div>
-            <div className="movie-rating-wrapper">
-              <div className="movie-rating">
-                <FontAwesomeIcon icon={faStar} className="star-icon" />
-                <span>{movie.vote_average}</span>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-});
-
-const useKeyPress = function (targetKey) {
-  const [keyPressed, setKeyPressed] = useState(false);
-
-  function downHandler({ key }) {
-    if (key === targetKey) {
-      setKeyPressed(true);
-    }
-  }
-
-  const upHandler = ({ key }) => {
-    if (key === targetKey) {
-      setKeyPressed(false);
-    }
-  };
-
-  React.useEffect(() => {
-    window.addEventListener("keydown", downHandler);
-    window.addEventListener("keyup", upHandler);
-
-    return () => {
-      window.removeEventListener("keydown", downHandler);
-      window.removeEventListener("keyup", upHandler);
-    };
-  });
-
-  return keyPressed;
-};
-
-SearchList.propTypes = {
-  searchText: PropTypes.string,
 };
 
 TypeAhead.propTypes = {
