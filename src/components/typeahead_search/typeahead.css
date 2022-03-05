@@ -161,3 +161,18 @@
   color: white;
   font-size: 15px;
 }
+
+.empty-list {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.empty-list-text {
+  font-size: 18px;
+  font-weight: 500;
+  color: darkred;
+  font-family: monospace;
+}

@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useContext, useEffect, useState } from "react";
+import React, { Fragment, useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar } from "@fortawesome/free-solid-svg-icons";
+import { faStar, faImage } from "@fortawesome/free-solid-svg-icons";
 
 import { SelectedMovieContext } from "../../page/home";
 import { useKeyPress } from "./hooks";
@@ -53,39 +53,55 @@ export const SearchList = React.memo(
     }, [cursor, enterPress]);
 
     return (
-      <div className="search-list-container" id="search-list">
-        {movieResults.map((movie, index) => {
-          let imageSource = movie.poster_path
-            ? `https://image.tmdb.org/t/p/w185/${movie.poster_path}`
-            : movieImageAlt;
-          return (
-            <div
-              key={movie.id}
-              className={`search-list-movie ${
-                inputKeyDown && cursor === index && "selected"
-              }`}
-              role={"button"}
-              onClick={() => {
-                setSelectedMovie(movie);
-                onClose();
-              }}
-            >
-              <div className="movie-image-wrapper">
-                <img src={imageSource} alt={movie.original_title} />
-              </div>
-              <div className="movie-context">
-                <span className="movie-title">{movie.original_title}</span>
-                <span className="movie-overview">{movie.overview}</span>
-              </div>
-              <div className="movie-rating-wrapper">
-                <div className="movie-rating">
-                  <FontAwesomeIcon icon={faStar} className="star-icon" />
-                  <span>{movie.vote_average}</span>
+      <div
+        className={`search-list-container ${
+          movieResults.length === 0 && "empty-list"
+        }`}
+        id="search-list"
+      >
+        {movieResults.length > 0 &&
+          movieResults.map((movie, index) => {
+            let imageSource = movie.poster_path
+              ? `https://image.tmdb.org/t/p/w185/${movie.poster_path}`
+              : movieImageAlt;
+            return (
+              <div
+                key={movie.id}
+                className={`search-list-movie ${
+                  inputKeyDown && cursor === index && "selected"
+                }`}
+                role={"button"}
+                onClick={() => {
+                  setSelectedMovie(movie);
+                  onClose();
+                }}
+              >
+                <div className="movie-image-wrapper">
+                  <img src={imageSource} alt={movie.original_title} />
+                </div>
+                <div className="movie-context">
+                  <span className="movie-title">{movie.original_title}</span>
+                  <span className="movie-overview">{movie.overview}</span>
+                </div>
+                <div className="movie-rating-wrapper">
+                  <div className="movie-rating">
+                    <FontAwesomeIcon icon={faStar} className="star-icon" />
+                    <span>{movie.vote_average}</span>
+                  </div>
                 </div>
               </div>
+            );
+          })}
+        {movieResults.length === 0 && (
+          <Fragment>
+            <div>
+              <FontAwesomeIcon icon={faImage} style={{ height: "10rem" }} />
             </div>
-          );
-        })}
+            <span className="empty-list-text">
+              There is no matching results for the given query
+            </span>
+          </Fragment>
+        )}
       </div>
     );
   }
