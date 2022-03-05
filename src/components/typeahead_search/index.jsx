@@ -21,6 +21,7 @@ export const TypeAhead = ({ showCloseButton }) => {
   const [search, setSearch] = useState("");
   const [showOverlay, setShowOverlay] = useState(false);
   const [isInputKeyDown, setIsInputKeyDown] = useState(false);
+  const [movieResults, setMovieResults] = useState([]);
 
   const searchInputRef = useRef(null);
   const overlayRef = useRef(null);
@@ -51,11 +52,19 @@ export const TypeAhead = ({ showCloseButton }) => {
   const onChangeSearch = (event) => {
     let searchValue = event.target.value;
     setSearch(searchValue);
+    getMoviesFromApi(searchValue);
   };
 
   const onClose = () => {
     setShowOverlay(false);
     setIsInputKeyDown(false);
+  };
+
+  const getMoviesFromApi = async (searchText) => {
+    let url = `https://api.themoviedb.org/3/search/movie?api_key=319adf4f4e6b88ce0c4b7ee9b398cbb5&language=en-US&page=1&include_adult=false&query=${searchText}`;
+    const getMovies = await fetch(url);
+    const response = await getMovies.json();
+    setMovieResults(response);
   };
 
   return (
@@ -96,6 +105,7 @@ export const TypeAhead = ({ showCloseButton }) => {
           searchText={search}
           inputKeyDown={isInputKeyDown}
           onClose={onClose}
+          movieResults={movieResults}
         />
       )}
       {showOverlay && (
@@ -109,9 +119,7 @@ export const TypeAhead = ({ showCloseButton }) => {
   );
 };
 
-const SearchList = ({ searchText, inputKeyDown, onClose }) => {
-  const { results } = MOCK_DATA;
-
+const SearchList = ({ searchText, inputKeyDown, onClose, movieResults }) => {
   const { setSelectedMovie } = useContext(SelectedMovieContext);
   const downPress = useKeyPress(KEY_CODES.BOTTOM);
   const upPress = useKeyPress(KEY_CODES.UP);
@@ -120,9 +128,9 @@ const SearchList = ({ searchText, inputKeyDown, onClose }) => {
   const [cursor, setCursor] = useState(0);
 
   useEffect(() => {
-    if (results.length && downPress) {
+    if (movieResults.length && downPress) {
       setCursor((prevState) =>
-        prevState < results.length - 1 ? prevState + 1 : prevState
+        prevState < movieResults.length - 1 ? prevState + 1 : prevState
       );
       setTimeout(() => {
         let activeElement = document.querySelector(
@@ -133,7 +141,7 @@ const SearchList = ({ searchText, inputKeyDown, onClose }) => {
     }
   }, [downPress]);
   useEffect(() => {
-    if (results.length && upPress) {
+    if (movieResults.length && upPress) {
       setCursor((prevState) => (prevState > 0 ? prevState - 1 : prevState));
       setTimeout(() => {
         let activeElement = document.querySelector(
@@ -144,8 +152,8 @@ const SearchList = ({ searchText, inputKeyDown, onClose }) => {
     }
   }, [upPress]);
   useEffect(() => {
-    if (results.length && enterPress) {
-      let selectedMovie = results[cursor];
+    if (movieResults.length && enterPress) {
+      let selectedMovie = movieResults[cursor];
       setSelectedMovie(selectedMovie);
       onClose();
     }
@@ -153,7 +161,7 @@ const SearchList = ({ searchText, inputKeyDown, onClose }) => {
 
   return (
     <div className="search-list-container" id="search-list">
-      {results.map((movie, index) => {
+      {movieResults.map((movie, index) => {
         return (
           <div
             key={movie.id}
