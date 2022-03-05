@@ -6,6 +6,7 @@ import { faStar } from "@fortawesome/free-solid-svg-icons";
 import { SelectedMovieContext } from "../../page/home";
 import { useKeyPress } from "./hooks";
 import { KEY_CODES } from "./constants";
+import movieImageAlt from "./movie-image-alt.jpg";
 
 import "./typeahead.css";
 
@@ -53,6 +54,9 @@ export const SearchList = React.memo(
     return (
       <div className="search-list-container" id="search-list">
         {movieResults.map((movie, index) => {
+          let imageSource = movie.poster_path
+            ? `https://image.tmdb.org/t/p/w185/${movie.poster_path}`
+            : movieImageAlt;
           return (
             <div
               key={movie.id}
@@ -66,10 +70,7 @@ export const SearchList = React.memo(
               }}
             >
               <div className="movie-image-wrapper">
-                <img
-                  src={`https://image.tmdb.org/t/p/w185/${movie.poster_path}`}
-                  alt={movie.original_title}
-                />
+                <img src={imageSource} alt={movie.original_title} />
               </div>
               <div className="movie-context">
                 <span className="movie-title">{movie.original_title}</span>
