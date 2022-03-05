@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -42,7 +43,9 @@ export const TypeAhead = ({ showCloseButton }) => {
   };
 
   const debounceDropDown = useCallback(
-    debounce((searchValue) => getMoviesFromApi(searchValue), 300),
+    debounce((searchValue) => {
+      getMoviesFromApi(searchValue);
+    }, 300),
     []
   );
 
