@@ -1,10 +1,15 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faClose, faStar } from "@fortawesome/free-solid-svg-icons";
 
 import { SelectedMovieContext } from "../../page/home";
-import MOCK_DATA from "./mock.data.json";
 
 import "./typeahead.css";
 
@@ -15,6 +20,18 @@ const KEY_CODES = {
   BOTTOM: "ArrowDown",
   ENTER: "Enter",
   ESCAPE: "Escape",
+};
+
+const debounce = function (fn, d) {
+  let timer;
+  return function () {
+    let context = this,
+      args = arguments;
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      fn.apply(context, args);
+    }, d);
+  };
 };
 
 export const TypeAhead = ({ showCloseButton }) => {
@@ -49,22 +66,27 @@ export const TypeAhead = ({ showCloseButton }) => {
     }
   };
 
+  const debounceDropDown = useCallback(
+    debounce((searchValue) => getMoviesFromApi(searchValue), 300),
+    []
+  );
+
   const onChangeSearch = (event) => {
     let searchValue = event.target.value;
     setSearch(searchValue);
-    getMoviesFromApi(searchValue);
+    searchValue && debounceDropDown(searchValue);
   };
 
-  const onClose = () => {
+  const onClose = useCallback(() => {
     setShowOverlay(false);
     setIsInputKeyDown(false);
-  };
+  }, []);
 
   const getMoviesFromApi = async (searchText) => {
     let url = `https://api.themoviedb.org/3/search/movie?api_key=319adf4f4e6b88ce0c4b7ee9b398cbb5&language=en-US&page=1&include_adult=false&query=${searchText}`;
     const getMovies = await fetch(url);
     const response = await getMovies.json();
-    setMovieResults(response);
+    setMovieResults(response.results);
   };
 
   return (
@@ -102,7 +124,6 @@ export const TypeAhead = ({ showCloseButton }) => {
       </div>
       {search && showOverlay && (
         <SearchList
-          searchText={search}
           inputKeyDown={isInputKeyDown}
           onClose={onClose}
           movieResults={movieResults}
@@ -119,7 +140,7 @@ export const TypeAhead = ({ showCloseButton }) => {
   );
 };
 
-const SearchList = ({ searchText, inputKeyDown, onClose, movieResults }) => {
+const SearchList = React.memo(({ inputKeyDown, onClose, movieResults }) => {
   const { setSelectedMovie } = useContext(SelectedMovieContext);
   const downPress = useKeyPress(KEY_CODES.BOTTOM);
   const upPress = useKeyPress(KEY_CODES.UP);
@@ -195,7 +216,7 @@ const SearchList = ({ searchText, inputKeyDown, onClose, movieResults }) => {
       })}
     </div>
   );
-};
+});
 
 const useKeyPress = function (targetKey) {
   const [keyPressed, setKeyPressed] = useState(false);
