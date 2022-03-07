@@ -6,9 +6,14 @@ import { faSearch, faClose } from "@fortawesome/free-solid-svg-icons";
 
 import { SearchList } from "./search.list";
 import { debounce } from "./utils";
+import { LRUCache } from "./utils/lru.cache";
 import { KEY_CODES } from "./constants";
 
 import "./typeahead.css";
+
+const CAPACITY = 50;
+
+const lruCacheInstance = new LRUCache(CAPACITY);
 
 export const TypeAhead = ({ showCloseButton }) => {
   const [search, setSearch] = useState("");
@@ -45,7 +50,7 @@ export const TypeAhead = ({ showCloseButton }) => {
   const debounceDropDown = useCallback(
     debounce((searchValue) => {
       getMoviesFromApi(searchValue);
-    }, 300),
+    }, 1000),
     []
   );
 
@@ -61,13 +66,19 @@ export const TypeAhead = ({ showCloseButton }) => {
   }, []);
 
   const getMoviesFromApi = async (searchText) => {
-    let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.REACT_APP_MOVIE_DB_SECRET}&language=en-US&page=1&include_adult=false&query=${searchText}`;
-    try {
-      const getMovies = await fetch(url);
-      const response = await getMovies.json();
-      setMovieResults(response?.results || movieResults);
-    } catch (err) {
-      setMovieResults([]);
+    if (lruCacheInstance.getItem(searchText) !== -1) {
+      let cachedMovieResults = lruCacheInstance.getItem(searchText);
+      setMovieResults(cachedMovieResults);
+    } else {
+      let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.REACT_APP_MOVIE_DB_SECRET}&language=en-US&page=1&include_adult=false&query=${searchText}`;
+      try {
+        const getMovies = await fetch(url);
+        const response = await getMovies.json();
+        setMovieResults(response?.results || movieResults);
+        lruCacheInstance.setItem(searchText, response.results);
+      } catch (err) {
+        setMovieResults([]);
+      }
     }
   };
 
