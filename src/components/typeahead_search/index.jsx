@@ -61,7 +61,7 @@ export const TypeAhead = ({ showCloseButton }) => {
   }, []);
 
   const getMoviesFromApi = async (searchText) => {
-    let url = `https://api.themoviedb.org/3/search/movie?api_key=319adf4f4e6b88ce0c4b7ee9b398cbb5&language=en-US&page=1&include_adult=false&query=${searchText}`;
+    let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.REACT_APP_MOVIE_DB_SECRET}&language=en-US&page=1&include_adult=false&query=${searchText}`;
     try {
       const getMovies = await fetch(url);
       const response = await getMovies.json();
