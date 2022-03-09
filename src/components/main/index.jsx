@@ -1,12 +1,30 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { SelectedMovieContext } from "../../page/home";
-import movieImageAlt from "./movie-image-alt.jpg";
+import movieImageAlt from "./assets/movie-image-alt.jpg";
 
 import "./main.css";
 
 export const Main = () => {
   const { movie } = useContext(SelectedMovieContext);
+
+  const [userOnline, setUserOnline] = useState(true);
+
+  useEffect(() => {
+    let networkStatusHandler = (event) => {
+      let status = event.type;
+      status === "offline" && setUserOnline(false);
+      status === "online" && setUserOnline(true);
+    };
+    window.addEventListener("online", networkStatusHandler);
+    window.addEventListener("offline", networkStatusHandler);
+
+    return () => {
+      window.removeEventListener("online", networkStatusHandler);
+      window.removeEventListener("offline", networkStatusHandler);
+    };
+  }, []);
+
   return (
     <div className="main-wrapper">
       {movie && (
@@ -31,6 +49,7 @@ export const Main = () => {
       {!movie && (
         <div style={{}}>Please search and select a movie to preview</div>
       )}
+      <div className={`user-${userOnline ? "online" : "offline"}`} />
     </div>
   );
 };
