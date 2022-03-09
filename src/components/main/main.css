@@ -44,13 +44,18 @@
 .user-online,
 .user-offline {
   position: absolute;
-  height: 4rem;
-  width: 4rem;
-  background-color: lightblue;
-  border-radius: 50%;
+  height: 3rem;
+  width: 10rem;
   bottom: 75px;
   right: 75px;
+  border-radius: 5px;
   box-shadow: 0 0 2px 1px rgb(0 0 0 / 20%);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 25px;
+  letter-spacing: 2.1px;
 }
 
 .user-offline {

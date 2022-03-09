@@ -49,7 +49,12 @@ export const Main = () => {
       {!movie && (
         <div style={{}}>Please search and select a movie to preview</div>
       )}
-      <div className={`user-${userOnline ? "online" : "offline"}`} />
+      <div
+        className={`user-${userOnline ? "online" : "offline"}`}
+        title={userOnline ? "online" : "offline"}
+      >
+        <span>{userOnline ? "online" : "offline"}</span>
+      </div>
     </div>
   );
 };
