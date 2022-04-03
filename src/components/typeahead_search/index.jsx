@@ -52,7 +52,7 @@ export const TypeAhead = ({ showCloseButton }) => {
   const debounceDropDown = useCallback(
     debounce((searchValue) => {
       getMoviesFromApi(searchValue);
-    }, 1000),
+    }, 100),
     []
   );
 
