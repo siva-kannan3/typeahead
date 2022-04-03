@@ -1,5 +1,12 @@
 # Typeahead component
 
+<div>
+  <img width="500" height="600" alt="Screenshot 2022-04-03 at 1 45 48 PM" src="https://user-images.githubusercontent.com/60533560/161418709-e90fb6a0-ff98-499a-97c9-39ff707e0b71.png">
+<img width="500" height="600" alt="Screenshot 2022-04-03 at 1 45 55 PM" src="https://user-images.githubusercontent.com/60533560/161418715-9d112cdc-fb70-4292-b1f1-4e289778b789.png">
+</div>
+
+
+
 Typeahead component which gives suggestions as user types. In this project movie list is given as suggestion to user.
 
 ## Setup
