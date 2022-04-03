@@ -32,6 +32,8 @@ export const TypeAhead = ({ showCloseButton }) => {
       } else if (event.key === KEY_CODES.ESCAPE) {
         setSearch("");
         setIsInputKeyDown(false);
+        setShowOverlay(false);
+        event.target.blur();
       }
       event.stopPropagation();
     });
@@ -61,6 +63,7 @@ export const TypeAhead = ({ showCloseButton }) => {
   };
 
   const onClose = useCallback(() => {
+    setSearch("");
     setShowOverlay(false);
     setIsInputKeyDown(false);
   }, []);
